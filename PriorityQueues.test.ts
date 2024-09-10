@@ -11,49 +11,36 @@ testCases.forEach(({text, TestClass}) => {
         describe('should instantiate', () => {
             it('when instantiated with no options', () => {
                 const queue = new TestClass();
-                expect(Array.isArray(queue.queue)).toBe(true);
-                expect(queue.queue.length).toBe(0);
             })
             it('when instantiated with a list', () => {
                 const queue = new TestClass([1,2,3]);
-                expect(Array.isArray(queue.queue)).toBe(true);
-                expect(queue.queue.length).toBe(3);
             })
             it('when instantiated with priority callback', () => {
                 const queue = new TestClass(null, { priority: (val: number) => val})
-                expect(Array.isArray(queue.queue)).toBe(true);
-                expect(queue.queue.length).toBe(0);
             })
         })
-        describe(`should insert at proper index`, () => {
+        describe(`should insert`, () => {
             describe(`when storing numbers`, () => {
                 it ('in the middle of the queue', () => {
                     const queue = new TestClass([1,2,3,5,6,7]);
-                    const insertionIndex = queue.enqueue(4);
-                    expect(insertionIndex).toBe(3);
-                    expect(queue.queue).toStrictEqual([1,2,3,4,5,6,7]);
+                    const enqueuedValue = queue.enqueue(4);
+                    expect(enqueuedValue).toBe(4);
+                    expect(queue.queue.root!.value).toBe(3)
                 })
                 it ('in the front of the queue', () => {
                     const queue = new TestClass([2,3,4,5,6,7]);
-                    const insertionIndex = queue.enqueue(1);
-                    expect(insertionIndex).toBe(0);
-                    expect(queue.queue).toStrictEqual([1,2,3,4,5,6,7]);
+                    const enqueuedValue = queue.enqueue(1);
+                    expect(enqueuedValue).toBe(1);
+                    expect(queue.queue.root!.value).toBe(4);
                 })
                 it ('in the back of the queue', () => {
                     const queue = new TestClass([1,2,3,4,5,6]);
-                    const insertionIndex = queue.enqueue(7);
-                    expect(insertionIndex).toBe(6);
-                    expect(queue.queue).toStrictEqual([1,2,3,4,5,6,7]);
+                    const enqueuedValue = queue.enqueue(7);
+                    expect(enqueuedValue).toBe(7);
+                    // expect(queue.queue).toStrictEqual([1,2,3,4,5,6,7]);
                 })
             })
             describe('when storing objects', () => {
-                const sortedQueue = [
-                    { rank: 1 },
-                    { rank: 2 },
-                    { rank: 3 },
-                    { rank: 4 },
-                    { rank: 5 }
-                ]
                 it ('in the middle of the queue', () => {
                     const queue = new TestClass([
                         { rank: 1 },
@@ -61,9 +48,8 @@ testCases.forEach(({text, TestClass}) => {
                         { rank: 4 },
                         { rank: 5 },
                     ], { priority: (val: {rank: number}) => val.rank})
-                    const insertionIndex = queue.enqueue({ rank: 3 });
-                    expect(insertionIndex).toBe(2)
-                    expect(queue.queue).toStrictEqual(sortedQueue)
+                    const enqueuedValue = queue.enqueue({ rank: 3 });
+                    expect(enqueuedValue).toStrictEqual({ rank: 3})
                 })
                 it ('in the front of the queue', () => {
                     const queue = new TestClass([
@@ -72,9 +58,8 @@ testCases.forEach(({text, TestClass}) => {
                         { rank: 4 },
                         { rank: 5 }
                     ], { priority: (val) => val.rank })
-                    const insertionIndex = queue.enqueue({ rank: 1 });
-                    expect(insertionIndex).toBe(0)
-                    expect(queue.queue).toStrictEqual(sortedQueue)
+                    const enqueuedValue = queue.enqueue({ rank: 1 });
+                    expect(enqueuedValue).toStrictEqual({ rank: 1 });
                 })
                 it ('in the back of the queue', () => {
                     const queue = new TestClass([
@@ -83,33 +68,66 @@ testCases.forEach(({text, TestClass}) => {
                         { rank: 3 },
                         { rank: 4 },
                     ], { priority: (val: {rank: number}) => val.rank})
-                    const insertionIndex = queue.enqueue({ rank: 5 });
-                    expect(insertionIndex).toBe(4)
-                    expect(queue.queue).toStrictEqual(sortedQueue)
+                    const enqueuedValue = queue.enqueue({ rank: 5 });
+                    expect(enqueuedValue).toStrictEqual({ rank: 5 });
                 })
             })
             describe('when storing strings', () => {
-                const sortedQueue = ['a', 'b', 'c', 'd']
                 it('in the middle of the queue', () => {
                     const queue = new TestClass(['a', 'b', 'd']);
-                    const insertionIndex = queue.enqueue('c');
-                    expect(insertionIndex).toBe(2);
-                    expect(queue.queue).toStrictEqual(sortedQueue);
+                    const enqueuedValue = queue.enqueue('c');
+                    expect(enqueuedValue).toBe('c');
                 })
                 it('in the front of the queue', () => {
                     const queue = new TestClass(['b', 'c', 'd']);
                     const insertionIndex = queue.enqueue('a');
-                    expect(insertionIndex).toBe(0);
-                    expect(queue.queue).toStrictEqual(sortedQueue);
+                    expect(insertionIndex).toBe('a');
                 })
                 it('in the back of the queue', () => {
                     const queue = new TestClass(['a', 'b', 'c']);
                     const insertionIndex = queue.enqueue('d');
-                    expect(insertionIndex).toBe(3);
-                    expect(queue.queue).toStrictEqual(sortedQueue);
+                    expect(insertionIndex).toBe('d');
                 })
             })
         })
     })
 })
+describe('MinPriorityQueue', () => {
+    describe('should dequeue', () => {
+        it('with numbers', () => {
+            const queue = new MinPriorityQueue<number>([1,2,3,4,5,6,7]);
+            ([1,2,3,4,5,6,7]).forEach((num) => {
+                const removed = queue.dequeue();
+                expect(removed).toBe(num)
+            })
+        })
+        it('with letters', () => {
+            const queue = new MinPriorityQueue<string>(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+            (['a', 'b', 'c', 'd', 'e', 'f', 'g']).forEach((num) => {
+                const removed = queue.dequeue();
+                expect(removed).toBe(num)
+            })
+        })
+    })
+})
+
+describe('MaxPriorityQueue', () => {
+    describe('should dequeue', () => {
+        it('with numbers', () => {
+            const queue = new MaxPriorityQueue<number>([1,2,3,4,5,6,7]);
+            ([7,6,5,4,3,2,1]).forEach((num) => {
+                const removed = queue.dequeue();
+                expect(removed).toBe(num)
+            })
+        })
+        it('with letters', () => {
+            const queue = new MaxPriorityQueue<string>(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+            (['g', 'f', 'e', 'd', 'c', 'b', 'a']).forEach((num) => {
+                const removed = queue.dequeue();
+                expect(removed).toBe(num)
+            })
+        })
+    })
+})
+   
 

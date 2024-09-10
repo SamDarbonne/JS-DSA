@@ -17,15 +17,15 @@ describe('Binary Tree', () => {
         describe('with one input', () => {
             it('number', () => {
                 const tree = new BinaryTree<number>(1);
-                expect(tree.root.value).toBe(1)
-                expect(tree.root.left).toBe(null)
-                expect(tree.root.right).toBe(null)
+                expect(tree.root!.value).toBe(1)
+                expect(tree.root!.left).toBe(null)
+                expect(tree.root!.right).toBe(null)
             })
             it('string', () => {
                 const tree = new BinaryTree<string>('hello');
-                expect(tree.root.value).toBe('hello')
-                expect(tree.root.left).toBe(null)
-                expect(tree.root.right).toBe(null)
+                expect(tree.root!.value).toBe('hello')
+                expect(tree.root!.left).toBe(null)
+                expect(tree.root!.right).toBe(null)
             })
         })
         describe('with a list', () => {
@@ -57,11 +57,45 @@ describe('Binary Tree', () => {
             const tree = new BinaryTree<number>([4])
             tree.insert(3)
             tree.insert(2)
-            expect(tree.root.getHeight()).toBe(2)
+            expect(tree.root!.getHeight()).toBe(2)
         })
         it('for balanced trees', () => {
             const tree = new BinaryTree<number>([4,2,6,1,3,5,7])
-            expect(tree.root.getHeight()).toBe(3)
+            expect(tree.root!.getHeight()).toBe(3)
+        })
+    })
+    describe('should remove properly', () => {
+        describe('from the left', () => {
+            it('with numbers', () => {
+                const tree = new BinaryTree<number>([4,2,6,1,3,5,7]);
+                ([1,2,3,4,5,6,7,null]).forEach((num) => {
+                    const removed = tree.removeFromLeft();
+                    expect(removed).toBe(num)
+                })
+            })
+            it('with letters', () => {
+                const tree = new BinaryTree<string>(['g', 'a', 'f', 'b', 'e', 'c', 'd']);
+                (['a', 'b', 'c', 'd', 'e', 'f', 'g', null]).forEach((num) => {
+                    const removed = tree.removeFromLeft();
+                    expect(removed).toBe(num)
+                })
+            })
+        })
+        describe('from the right', () => {
+            it('with numbers', () => {
+                const tree = new BinaryTree<number>([4,2,6,1,3,5,7]);
+                ([7,6,5,4,3,2,1,null]).forEach((num) => {
+                    const removed = tree.removeFromRight();
+                    expect(removed).toBe(num)
+                })
+            })
+            it('with letters', () => {
+                const tree = new BinaryTree<string>(['g', 'a', 'f', 'b', 'e', 'c', 'd']);
+                (['g', 'f', 'e', 'd', 'c', 'b', 'a']).forEach((num) => {
+                    const removed = tree.removeFromRight();
+                    expect(removed).toBe(num)
+                })
+            })
         })
     })
     describe('should rotate', () => {
@@ -73,11 +107,11 @@ describe('Binary Tree', () => {
                 root = root.rotateRight();
                 expect(root.value).toBe(1)
                 expect(root.left).toBe(null);
-                expect(root.right?.value).toBe(2)
-                expect(root.right?.right?.value).toBe(3)
+                expect(root.right!.value).toBe(2)
+                expect(root.right!.right!.value).toBe(3)
                 expect(root.height).toBe(3);
-                expect(root.right?.height).toBe(2)
-                expect(root.right?.right?.height).toBe(1)
+                expect(root.right!.height).toBe(2)
+                expect(root.right!.right!.height).toBe(1)
             })
         })
         describe('left', () => {
@@ -88,11 +122,11 @@ describe('Binary Tree', () => {
                 root = root.rotateLeft();
                 expect(root.value).toBe(3);
                 expect(root.right).toBe(null);
-                expect(root.left?.value).toBe(2);
-                expect(root.left?.left?.value).toBe(1);
+                expect(root.left!.value).toBe(2);
+                expect(root.left!.left!.value).toBe(1);
                 expect(root.height).toBe(3);
-                expect(root.left?.height).toBe(2);
-                expect(root.left?.left?.height).toBe(1);
+                expect(root.left!.height).toBe(2);
+                expect(root.left!.left!.height).toBe(1);
             })
         })
     })

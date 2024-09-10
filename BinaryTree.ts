@@ -1,10 +1,10 @@
 export class BinaryTreeNode<T> {
-    value: T;
+    value: T | null;
     left: BinaryTreeNode<T> | null = null;
     right: BinaryTreeNode<T> | null = null;
     height: number;
     priority?: (value: T) => number;
-    constructor(value: T, priority?) {
+    constructor(value: T | null, priority?) {
         this.height = 1;
         this.priority = priority;
         this.value = value;
@@ -20,14 +20,14 @@ export class BinaryTreeNode<T> {
         return ((node.left?.getHeight() || 0) - (node.right?.getHeight() || 0));
     }
 
-    compare(nodeA: T, nodeB: T = this.value): 0 | 1 | -1 {
+    compare(nodeA: T | null, nodeB: T | null = this.value as T | null): 0 | 1 | -1 {
         let a, b;
         if (this.priority) {
-            [a, b] = [this.priority(nodeA), this.priority(nodeB)]
+            [a, b] = [nodeA ? this.priority(nodeA) : null, nodeB ? this.priority(nodeB) : null];
         } else [a, b] = [nodeA, nodeB];
         if (a === b) return 0;
-        if (a < b) return -1;
-        return 1
+        if (a && b && a < b) return -1;
+        return 1;
     }
 
     rotateRight(node: BinaryTreeNode<T> = this): BinaryTreeNode<T> {
@@ -58,6 +58,22 @@ export class BinaryTreeNode<T> {
         return node
     }
 
+    rebalance(node: BinaryTreeNode<T> = this): BinaryTreeNode<T> {
+        const balance = node.getBalance();
+        if (balance > 1) {
+            if (this.compare(node.value, node.left!.value)) {
+                node.left = node.left!.rotateLeft();
+                return node.rotateRight();
+            } return node.rotateRight()
+        } else if (balance < -1) {
+            if (this.compare(node.value, node.right!.value)) {
+                node.right = node.right!.rotateRight();
+                return node.rotateLeft();
+            } return node.rotateLeft();
+        }
+        return node
+    }
+
     insert(entry: T, root: BinaryTreeNode<T> = this): BinaryTreeNode<T> {
         if (!root?.value) {
             root = new BinaryTreeNode<T>(entry)
@@ -81,29 +97,48 @@ export class BinaryTreeNode<T> {
                 break;
             case 0:
                 return root;
-                break;
         }
-        const balance = root.getBalance();
-            // Left-Left Case
-        if (balance > 1) {
-            if (this.compare(entry, root.left!.value)) {
-                root.left = root.left!.rotateLeft();
-                return root.rotateRight();
-            } return root.rotateRight()
-        } else if (balance < -1) {
-            if (this.compare(entry, root.right!.value)) {
-                root.right = root.right!.rotateRight();
-                return root.rotateLeft();
-            } return root.rotateLeft();
+        return this.rebalance();
+    }
+    
+    removeFromLeft(): [BinaryTreeNode<T> | null, T | null] {
+        let newRoot: BinaryTreeNode<T> | null = null,
+            outputValue: T | null = null;
+        if (!this.left) {
+            outputValue = this.value;
+            newRoot = this.right;
+        } else {
+            const [newLeft, value] = this.left.removeFromLeft();
+            outputValue = value;
+            this.left = newLeft;
+            this.height = this.getHeight();
+            newRoot = this.rebalance();
         }
-        return root
+        return [newRoot, outputValue];
+    }
+
+    removeFromRight(): [BinaryTreeNode<T> | null, T | null] {
+        let newRoot: BinaryTreeNode<T> | null = null,
+            outputValue: T | null = null;
+        if (!this.right) {
+            outputValue = this.value;
+            newRoot = this.left;
+        } else {
+            const [newRight, value] = this.right.removeFromRight();
+            outputValue = value;
+            this.right = newRight;
+            this.height = this.getHeight();
+            newRoot = this.rebalance();
+        }
+        return [newRoot, outputValue];
     }
 }
 
 class BinaryTree<Entry> {
-    root: BinaryTreeNode<Entry>;
+    root: BinaryTreeNode<Entry> | null = null;
     priority?: (value: Entry) => number;
-    constructor(value: Entry | Entry[], priority?) {
+    
+    constructor(value: Entry | Entry[] | null, priority?) {
     this.priority = priority;
         if (Array.isArray(value)) {
             this.root = new BinaryTreeNode<Entry>(value[0]);
@@ -112,10 +147,28 @@ class BinaryTree<Entry> {
             this.root = new BinaryTreeNode<Entry>(value)
         }
     }
+
     insert(value: Entry): Entry {
+        if (!this.root) {
+            this.root = new BinaryTreeNode<Entry>(value)
+        }
         this.root = this.root.insert(value)
         return value;
     }
+
+    removeFromSide(side: 'left' | 'right'): () => Entry | null {
+        return () => {
+            const left = side === 'left';
+            if (!this.root) return null;
+            const [newRoot, value] = left ? this.root.removeFromLeft() : this.root.removeFromRight();
+            this.root = newRoot;
+            return value;
+        }
+        
+    }
+
+    removeFromLeft = this.removeFromSide('left')
+    removeFromRight = this.removeFromSide('right');
 }
 
 export default BinaryTree
