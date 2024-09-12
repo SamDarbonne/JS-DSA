@@ -81,14 +81,14 @@ export class BinaryTreeNode<T> {
         }
         const comparison = this.compare(entry, root.value)
         switch (comparison) {
-            case -1:
+            case 1:
                 if (root.left) {
                     root.left = root.left.insert(entry);
                 } else {
                     root.left = new BinaryTreeNode<T>(entry, this.priority);
                 }
                 break;
-            case 1:
+            case -1:
                 if (root.right) {
                     root.right = root.right.insert(entry);
                 } else {
