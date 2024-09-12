@@ -1,4 +1,6 @@
 # JS-DSA
+[![Run Jest tests](https://github.com/SamDarbonne/JS-DSA/actions/workflows/test.yml/badge.svg)](https://github.com/SamDarbonne/JS-DSA/actions/workflows/test.yml)
+
 simple Javascript/Typescript Data Structures
 
 ### BinaryTree
